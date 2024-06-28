@@ -8,7 +8,7 @@ const passport = require('./config/passport')
 const cors = require('cors')
 const { generalErrorHandler } = require('./middleware/error-handler')
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3001
 
 app.use(cors())
 app.use(express.urlencoded({ extended: true }))

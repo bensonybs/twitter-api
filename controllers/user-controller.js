@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs')
 const dayjs = require('dayjs')
 const jwt = require('jsonwebtoken')
+const validator = require('validator')
 const { Op } = require('sequelize')
 
 const helpers = require('../_helpers')
@@ -247,6 +248,12 @@ const userController = {
   getUsersTop: async (req, res, next) => {
     try {
       const loginUserId = helpers.getUser(req).id
+      const reqUsersNumber = sanitizedInput(req.query.num)
+      if (!validator.isInt(reqUsersNumber)) {
+        const err = new Error('Your input is invalid! Please enter number.')
+        err.status = 400
+        throw err
+      }
       const topUsers = await User.findAll({
         attributes: ['id', 'name', 'account', 'avatar',
           [sequelize.literal('(SELECT COUNT(*) FROM Followships WHERE Followships.followingId = User.id)'), 'followerCount'],
@@ -257,6 +264,7 @@ const userController = {
             [Op.ne]: 'admin'
           }
         },
+        limit: Number(reqUsersNumber), // 加入limit
         order: [[sequelize.literal('followerCount'), 'DESC'], ['name', 'ASC']],
         raw: true,
         nest: true
